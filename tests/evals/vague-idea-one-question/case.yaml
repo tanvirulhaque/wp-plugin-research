@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: vague-idea-one-question
+expected_outcome: |
+  The idea is too vague to search, so the skill asks exactly one short clarifying question and does not start the research or produce reports.

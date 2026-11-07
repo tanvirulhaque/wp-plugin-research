@@ -1,0 +1,10 @@
+{"title":"Test workbook","prepared":"2026-11-07","purpose":"test","limits":["sample only"],
+"plugins":[{"id":"P01","name":"Alpha","vendor":"A Co","entry_price":49,"rating":4.5,"url":"https://a.example","confidence":"High"},{"id":"P02","name":"Beta","vendor":"B Co","url":"https://b.example"}],
+"features":{"columns":["Shop page","HPOS"],"rows":[{"plugin":"P01 Alpha","values":["Yes","?"]},{"plugin":"P02 Beta","values":["Pro","Yes"]}]},
+"reviews":[{"id":"R01","plugin_id":"P01","source":"Alpha","rating":1,"theme":"Filters","summary":"filters broke","sentiment":"Negative","url":"https://r.example"}],
+"pains":[{"id":"PN01","theme":"Filters break","evidence":"R01","severity":"High","evidence_strength":"Medium","gaps":"G01"}],
+"gaps":[{"id":"G01","gap":"Filter correctness"},{"id":"G02","gap":"Colour-first"},{"id":"G03","gap":"Hybrid card"}],
+"benefits":[{"id":"B01","benefit":"Fewer clicks","strength":"Medium"}],
+"scorecard":{"criteria":[{"name":"Evidence of pain","weight":30},{"name":"Differentiation","weight":25},{"name":"Ease of build","weight":15},{"name":"Portfolio fit","weight":15},{"name":"Revenue","weight":15}],
+ "scores":{"G01":[5,4,2,4,5],"G02":[5,4,4,5,4],"G03":[4,5,3,5,4]}},
+"sources":[{"id":"S01","description":"Alpha page","url":"https://a.example","type":"Vendor","reliability":"Medium"}]}

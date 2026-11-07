@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: full-run-wholesale-pricing
+expected_outcome: |
+  A full run: Final Decision Summary, Research Report, Technical Report and Research Workbook, built from real web research, short and easy to read, with a clear verdict.

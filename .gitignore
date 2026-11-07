@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.DS_Store
+dist/
+*.skill
+*.zip
+research.json
+*-research.xlsx
+.venv/
+tests/evals/results/
