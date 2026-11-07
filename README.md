@@ -271,6 +271,10 @@ wp-plugin-research/
   3. Create a GitHub Release and attach both files from `dist/`.
 - **Contribute:** open an issue or a pull request. Keep `SKILL.md` lean and put details in `references/`.
 
+## Author
+
+Made by **Tanvirul Haque**: [tanvirulhaque.com](https://tanvirulhaque.com) · [GitHub](https://github.com/tanvirulhaque)
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
