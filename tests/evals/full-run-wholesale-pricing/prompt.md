@@ -5,4 +5,4 @@ timeout_seconds: 3600
 allowed_tools: [Read, Glob, Grep, Skill, Write, Edit, Bash, WebSearch, WebFetch]
 ---
 
-Research: WooCommerce wholesale pricing plugin
+Research: WooCommerce wholesale pricing plugin. Do the full run in one go without stopping for me.

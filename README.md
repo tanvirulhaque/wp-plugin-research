@@ -4,6 +4,8 @@ An open [Agent Skill](https://agentskills.io) for researching WordPress / WooCom
 
 **Type a plugin idea. Get a clear decision: build it or not, and how.**
 
+**Version 1.1.0.** See [CHANGELOG](CHANGELOG.md) for what's new.
+
 ## ⚡ Quick start (Claude, 3 steps)
 
 1. **Install:** click **Save skill** on the `wp-plugin-research.skill` file card.
@@ -12,6 +14,10 @@ An open [Agent Skill](https://agentskills.io) for researching WordPress / WooCom
    ```
    /wp-plugin-research WooCommerce wholesale pricing
    ```
+
+It runs in **2 turns**:
+- **Turn 1:** research, then the evidence workbook and an early verdict.
+- **Turn 2:** reply **`continue`** to get the full reports.
 
 Using ChatGPT, Gemini, Codex, Cursor or Copilot? See **section 2**.
 
@@ -148,18 +154,35 @@ The command is the surest way. Plain asking works when your message clearly matc
 
 ---
 
-## 4. What you'll be asked (max 2 things)
+## 4. How a run works
+
+| Turn | What happens | You do |
+|---|---|---|
+| 1. Research | Finds plugins, collects data, analyzes, builds the workbook | Read the early verdict, then reply **`continue`** (and name any plugins you already sell) |
+| 2. Reports | Writes the 4 deliverables | Read the Final Decision Summary first |
+| 3. Pro code (optional) | Deep code check on code you share | Share the Pro zips it asked for |
+
+- **If a run stops partway** (tool or context limits), just reply `continue`. It resumes from its saved progress (`research.json` and `notes.md`) instead of starting over.
+- **Want it faster?** Add **"quick"** for **Lite mode**: 3 competitors, Decision Summary and workbook only.
+  ```
+  /wp-plugin-research quick: WooCommerce wholesale pricing
+  ```
+
+---
+
+## 5. What you'll be asked (up to 3 short things)
 
 | When | Question | What to do |
 |---|---|---|
 | Only if your idea is vague | One short clarifying question | Answer in one line |
-| At the end of the delivery | 📦 **Pro code request**: 2–4 paid plugins it can't download | Buy the cheapest license, then share a **folder path** (Claude Code / Cowork) or **upload the .zip** files. It updates the Technical Report. Skip any you don't want to buy |
+| End of turn 1 | Do you already sell plugins? | Name them, or skip |
+| End of turn 2 | 📦 **Code request**: 2–4 paid plugins it can't download, plus any free ones whose download was blocked | Share a **folder path** (Claude Code / Cowork) or **upload the .zip** files. It updates the Technical Report. Skip any you don't want to buy |
 
 It downloads the Free versions itself. The research never stops to wait for code.
 
 ---
 
-## 5. What you get (4 outputs)
+## 6. What you get (4 outputs)
 
 | # | Output | Read it when | Time |
 |---|---|---|---|
@@ -168,13 +191,16 @@ It downloads the Free versions itself. The research never stops to wait for code
 | 3 | 🛠 **Technical Report** | You or your developer plan the build | 15–20 min |
 | 4 | 📁 **Research Workbook (.xlsx)** | You want to check evidence or change priorities | As needed |
 
-In Claude, reports open as Claude Docs (editable, shareable, downloadable as Word or PDF). In other apps, they're Markdown files or appear in the chat. Apps that can't run scripts give the workbook data as tables instead of an .xlsx file. Say **"business only"** to skip the Technical Report.
+In Claude, reports open as one Claude Doc with **Summary · Research · Technical** tabs (editable, shareable, downloadable as Word or PDF). In other apps, they're Markdown files or appear in the chat. Apps that can't run scripts give the workbook data as tables instead of an .xlsx file. Say **"business only"** to skip the Technical Report.
+
+**Workbook sheets:** Plugin_Master, Health_Metrics, Feature_Matrix, Review_Log, Pain_Points, Gaps_Opportunities, Benefits, Demand_Proxy, Decision_Scorecard, Pricing_Benchmarks, Final_Feature_Set, Forecast, Verdict, Sources and AI_Facts. Change the yellow cells and everything recalculates.
 
 ---
 
-## 6. How to read the results
+## 7. How to read the results
 
 **Signals:** ✅ good · ⚠️ watch · ❌ bad · 🔥 top priority · ? not verified
+(In Claude Docs these appear as words: Good / Watch / Bad / Top priority / Not verified.)
 
 **Labels:** **Fact** (seen in a source) · **Estimate** (calculated, with the math shown) · **Assumption** (judgment)
 
@@ -191,15 +217,15 @@ In Claude, reports open as Claude Docs (editable, shareable, downloadable as Wor
 Source (S) → Review (R) → Pain (PN) → Gap (G) → Scorecard rank → Feature
 ```
 
-**Change priorities:** open the workbook's **Decision_Scorecard** sheet and edit the yellow cells. The ranking updates automatically.
+**Change priorities:** edit the yellow cells in **Decision_Scorecard** (gap ranking), **Forecast** (revenue scenarios) or **Verdict** (factor scores). The results update automatically.
 
 ---
 
-## 7. Test the skill (after installing or editing it)
+## 8. Test the skill (after installing or editing it)
 
 1. Open a **new chat** in your app.
 2. Type the start command from section 3, for example `/wp-plugin-research WooCommerce wholesale pricing`
-3. Wait for the 4 outputs.
+3. After turn 1 (early verdict + workbook), reply `continue`, then wait for the 4 outputs.
 4. Check them:
 
 | # | Check | Pass if… |
@@ -211,12 +237,16 @@ Source (S) → Review (R) → Pain (PN) → Gap (G) → Scorecard rank → Featu
 | 5 | Technical | The Technical Report shows HPOS and Checkout Blocks status per competitor |
 | 6 | Code request | At most 4 Pro plugins are requested, each with a reason |
 | 7 | Your decisions | 2–4 decisions are listed, each with options and a recommendation |
+| 8 | Turn 1 checkpoint | Turn 1 ends with an early verdict, the workbook, and a request to reply `continue` |
+| 9 | Coverage | **Limits & coverage** lists what was checked, what was partial, and what was blocked |
 
-Quick extra test: type `research a woocommerce plugin that makes money`. It should ask **one** question and stop.
+Quick extra tests:
+- `research a woocommerce plugin that makes money` should ask **one** question and stop.
+- `quick research: WooCommerce product bundles` should research **3** competitors and give only the Decision Summary and workbook.
 
 ---
 
-## 8. Good follow-up prompts
+## 9. Good follow-up prompts
 
 - `Go deeper on gap G02`
 - `Here is the Pro code for [plugin]` (attach the zip) → the Technical Report is updated
@@ -226,47 +256,63 @@ Quick extra test: type `research a woocommerce plugin that makes money`. It shou
 
 ---
 
-## 9. Limits
+## 10. Limits
 
 - Review coverage is a sample, not every review. Gaps are listed in **Limits & Coverage**.
 - Vendor claims can be wrong. Conflicts are flagged, and marketplace numbers are trusted first.
 - Revenue numbers are estimates based on industry averages, not guarantees.
 - Code reading is static, so runtime behaviour is marked "likely".
-- A full run takes many searches. Big niches take longer.
+- A full run takes many searches, so it's split into 2 turns. Big niches take longer.
+- Some sources can be blocked (for example wordpress.org from some sandboxes). The skill switches to backup sources such as tracker sites, jsDelivr and GitHub mirrors, and lists what it couldn't reach under **Limits & coverage**.
+- Keyword and trend tools usually aren't available, so demand uses a transparent **proxy score** you can check in the Demand_Proxy sheet.
 - It never uses nulled or pirated plugins.
 
 ---
 
-## 10. Repository layout
+## 11. Repository layout
 
 ```
 wp-plugin-research/
 ├── README.md                 ← this file
 ├── LICENSE                   ← MIT
 ├── CHANGELOG.md
+├── ROADMAP.md                ← ideas under consideration
 ├── requirements.txt          ← openpyxl (for the scripts)
 ├── skills/
 │   └── wp-plugin-research/   ← THE SKILL (copy this folder to install)
 │       ├── SKILL.md          ← workflow: 5 stages, 16 phases
-│       ├── references/       ← playbooks, templates, checklists (loaded only when needed)
+│       ├── references/       ← playbooks, templates, run plan, sources (loaded only when needed)
+│       ├── assets/research-template.json ← starter data file
 │       └── scripts/
-│           ├── analyze_plugin.py   ← scans a plugin's code
+│           ├── analyze_plugin.py   ← scans a plugin's code (bundled SDKs excluded, hot-path checks)
 │           ├── compare_code.py     ← side-by-side technical comparison
-│           └── build_workbook.py   ← builds the evidence .xlsx
+│           ├── fetch_code.py       ← downloads free code (wordpress.org or GitHub mirrors)
+│           ├── add_row.py          ← saves each finding to research.json
+│           └── build_workbook.py   ← builds the evidence .xlsx (15 data sheets + README)
 ├── tests/
-│   ├── evals/                ← 3 test cases (prompts + pass/fail checks)
+│   ├── evals/                ← 5 test cases (prompts + pass/fail checks)
+│   ├── fixtures/demo-plugin/ ← tiny plugin for the scanner test
 │   └── sample-research.json  ← sample data for the workbook smoke test
 ├── tools/package.sh          ← builds dist/*.skill and dist/*.zip
+├── tools/check_skill.py      ← SKILL.md size + pointer guardrail
+├── tools/check_no_loss.py    ← audit: no instruction lost vs an older version
 └── .github/workflows/validate.yml  ← spec validation + script checks on every push
 ```
 
 ---
 
-## 11. For maintainers
+## 12. For maintainers
 
+- **Size and pointer check:** `python tools/check_skill.py`. It warns if SKILL.md grows past about 3,700 words, and fails on missing or orphan reference files or a missing phase.
 - **Validate:** `skills-ref validate skills/wp-plugin-research`. This is the official Agent Skills validator, and GitHub Actions runs it on every push.
+- **No-loss audit (before every release):** compare with the last release so no instruction disappears:
+  ```
+  mkdir -p /tmp/old && git archive <last-release-tag> skills | tar -x -C /tmp/old
+  python tools/check_no_loss.py /tmp/old/skills/wp-plugin-research skills/wp-plugin-research
+  ```
+  Every flagged line must be reworded or moved on purpose, never dropped.
 - **Release:**
-  1. Update `metadata.version` in `SKILL.md` and `CHANGELOG.md`.
+  1. Run the checks above, then update `metadata.version` in `SKILL.md` and `CHANGELOG.md`.
   2. Run `bash tools/package.sh`.
   3. Create a GitHub Release and attach both files from `dist/`.
 - **Contribute:** open an issue or a pull request. Keep `SKILL.md` lean and put details in `references/`.

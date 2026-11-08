@@ -32,7 +32,7 @@ Read this before PHASE 5 (Analytics). It lists every metric to collect, where to
 | Patchstack / WPScan / Wordfence Intelligence | Security vulnerability history per plugin | Search "[plugin] vulnerability patchstack" |
 | Freemius / industry benchmarks | Conversion, churn, renewal benchmarks | See section 5 |
 
-If the API cannot be reached from the environment (blocked network), read the same numbers from the plugin's wordpress.org page or Plugin Pulse, and say which source was used.
+If the API cannot be reached (blocked network), use the fallback chain in `sources.md` and the metric fallback map in §2b, and say which source was used. Remember most fetch tools only open URLs that appeared in search results — search for each page first.
 
 Important background: WordPress.org removed its public "active install growth" chart in 2022, so install growth must be estimated from download trends and third-party trackers. Active installs are shown in rounded bands (e.g. "10,000+"), so treat them as ranges.
 
@@ -57,13 +57,31 @@ Important background: WordPress.org removed its public "active install growth" c
 | Support load | support_threads ÷ (active_installs ÷ 1000) | Threads per 1,000 installs — high = complex or buggy product (warns you about support work) |
 | Modern compatibility | HPOS ✔/✘, Checkout Blocks ✔/✘ | ✘ = big gap you can fill |
 
+### 2b. Metric fallback map (when the API is blocked)
+
+Use these instead of leaving "?" everywhere:
+
+| Metric | Fallback source / method |
+|---|---|
+| Active installs | Plugin page band ("10,000+") → tracker page |
+| Age | Tracker "added" date → first version in changelog → earliest review date (label as estimate) |
+| Install velocity | Band floor ÷ age (estimate) |
+| Momentum | Tracker trend (PluginTracker / Plugin Pulse, e.g. 13-week download average) → "?" |
+| Retention signal | Skip if no `downloaded` count (say so) |
+| Negative review share | Plugin page star breakdown → count 1–2★ on the reviews pages |
+| Review rate | Review count ÷ band floor × 1000 (estimate) |
+| Support resolution | Plugin page "issues resolved in last two months" box → tracker support % |
+| Update cadence | Changelog entries in the last 12 months |
+| HPOS / Blocks | Code scan → Marketplace "Compatibility" box → changelog lines |
+
 ---
 
 ## 3. Market structure metrics (whole niche)
 
 | Metric | Formula | How to read it |
 |---|---|---|
-| Total niche installs | sum of active_installs of all Master List plugins | Proven reachable market |
+| Total niche installs | sum of active_installs of all Master List plugins (use band floors; label as estimate) | Proven reachable market |
+| Paid users (small niches) | WooCommerce Marketplace installs/stores + CodeCanyon sales + known Pro customer counts | Many single-feature niches are small in free installs but healthy in paid users — count both |
 | Leader share | leader installs ÷ total niche installs | >60% = one dominant player |
 | Top-3 share | top 3 installs ÷ total | >80% = concentrated market |
 | Concentration verdict | combine with leader's satisfaction | Concentrated + leader loved = hard. Concentrated + leader disliked/outdated = one big switching target (good) |
@@ -92,6 +110,20 @@ Important background: WordPress.org removed its public "active install growth" c
 | Freelance job count | Upwork/Codeable searches | People paying for custom solutions = willingness to pay |
 | Feature request count | support forums + reviews | Which features users ask for most (feeds Phase 6) |
 
+### 4b. Demand proxy score (when no keyword or trend tool is available)
+
+Score each signal 0–2 and add them up (max 10):
+
+| Signal | 0 | 1 | 2 |
+|---|---|---|---|
+| Plugins in the niche (Master List) | < 5 | 5–15 | > 15 |
+| Leader's installs or paid users | < 5,000 | 5,000–50,000 | > 50,000 |
+| New entrants in the last 3 years with 1,000+ installs or 500+ sales | 0 | 1 | 2+ |
+| Community threads asking for it (last 12 months, real threads) | < 3 | 3–10 | > 10 |
+| Freelance jobs / custom-work requests | none found | a few | many |
+
+**0–3 = Low · 4–6 = Medium · 7–10 = High.** Show the table in the workbook so the user can check it. If keyword data *is* available, use it and keep the proxy as a cross-check.
+
 ---
 
 ## 5. Revenue metrics and forecast
@@ -111,7 +143,7 @@ Important background: WordPress.org removed its public "active install growth" c
 | Scenario | Free installs (end of year) | Conversion | Paying customers | Avg price | New revenue | Renewals (70%) | Total |
 
 Rules:
-- Base install growth on what similar newer plugins achieved (install velocity of recent entrants), not on the leader.
+- Base install growth on what similar newer plugins achieved (install velocity of recent entrants), not on the leader. If added dates are missing, estimate age from the first changelog version or earliest review (§2b).
 - Show the math in one line under the table.
 - Add a simple **break-even**: estimated build + first-year cost ÷ average revenue per customer = customers needed.
 
@@ -128,7 +160,7 @@ Rules:
 - **Recent vs lifetime rating:** average of reviews from the last 12 months vs overall. Falling recent rating = declining product.
 - **Support reply speed:** typical time to first reply in recent threads.
 - **Love themes:** what 4–5★ reviews praise — those are must-keep qualities.
-- **Sentiment by persona:** where reviewers reveal who they are (agency, small shop, B2B), note which persona is happiest and which is most frustrated — the frustrated persona is often the best target.
+- **Sentiment by persona (optional):** where reviewers reveal who they are (agency, small shop, B2B, store size, cart size or SKU counts mentioned), note which persona is happiest and which is most frustrated — the frustrated persona is often the best target. Personas are rarely stated, so if there isn't enough signal, skip it and say so.
 
 ---
 
@@ -162,7 +194,7 @@ Use this to choose which channels are crowded and which are open.
 Use these as guides, not hard rules:
 
 **Good signs**
-- Total niche installs ≥ 50,000 and at least one paid plugin selling well.
+- Total niche installs ≥ 50,000 **or**, for small paid niches, paid users ≥ 2,000 (marketplace + CodeCanyon + known Pro customers), with at least one paid plugin selling well.
 - Leader has negative review share > 15% or support resolution < 50%.
 - 25%+ of plugins abandoned or missing HPOS/Checkout Blocks support.
 - At least one newer plugin (≤ 3 years old) reached 1,000+ installs → newcomers can win.
@@ -172,7 +204,7 @@ Use these as guides, not hard rules:
 **Red flags**
 - Leader has 80%+ share, 4.7★+, active updates and fast support.
 - WooCommerce core is adding the feature.
-- Total niche installs < 5,000 and no paid competitor sales.
+- Total niche installs < 5,000 **and** paid users < 500, with no paid competitor selling well.
 - Falling search trend and falling downloads across most plugins.
 - Very high support load in all competitors (hard, ticket-heavy product).
 

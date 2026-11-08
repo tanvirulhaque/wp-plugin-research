@@ -1,10 +1,248 @@
-{"title":"Test workbook","prepared":"2026-11-07","purpose":"test","limits":["sample only"],
-"plugins":[{"id":"P01","name":"Alpha","vendor":"A Co","entry_price":49,"rating":4.5,"url":"https://a.example","confidence":"High"},{"id":"P02","name":"Beta","vendor":"B Co","url":"https://b.example"}],
-"features":{"columns":["Shop page","HPOS"],"rows":[{"plugin":"P01 Alpha","values":["Yes","?"]},{"plugin":"P02 Beta","values":["Pro","Yes"]}]},
-"reviews":[{"id":"R01","plugin_id":"P01","source":"Alpha","rating":1,"theme":"Filters","summary":"filters broke","sentiment":"Negative","url":"https://r.example"}],
-"pains":[{"id":"PN01","theme":"Filters break","evidence":"R01","severity":"High","evidence_strength":"Medium","gaps":"G01"}],
-"gaps":[{"id":"G01","gap":"Filter correctness"},{"id":"G02","gap":"Colour-first"},{"id":"G03","gap":"Hybrid card"}],
-"benefits":[{"id":"B01","benefit":"Fewer clicks","strength":"Medium"}],
-"scorecard":{"criteria":[{"name":"Evidence of pain","weight":30},{"name":"Differentiation","weight":25},{"name":"Ease of build","weight":15},{"name":"Portfolio fit","weight":15},{"name":"Revenue","weight":15}],
- "scores":{"G01":[5,4,2,4,5],"G02":[5,4,4,5,4],"G03":[4,5,3,5,4]}},
-"sources":[{"id":"S01","description":"Alpha page","url":"https://a.example","type":"Vendor","reliability":"Medium"}]}
+{
+  "title": "Test workbook",
+  "prepared": "2026-11-07",
+  "purpose": "Evidence behind the GO / NO-GO decision for [plugin idea]",
+  "mode": "full",
+  "phase_done": 0,
+  "user_products": [],
+  "limits": [],
+  "default_confidence": "Medium",
+  "plugins": [
+    {
+      "id": "P01",
+      "name": "Alpha",
+      "vendor": "A Co",
+      "entry_price": 49,
+      "rating": 4.5,
+      "url": "https://a.example",
+      "confidence": "High"
+    },
+    {
+      "id": "P02",
+      "name": "Beta",
+      "vendor": "B Co",
+      "url": "https://b.example"
+    }
+  ],
+  "health": [
+    {
+      "plugin_id": "P01",
+      "plugin": "Alpha",
+      "installs_floor": 10000,
+      "source": "plugin page"
+    }
+  ],
+  "features": {
+    "columns": [
+      "Shop page",
+      "HPOS"
+    ],
+    "rows": [
+      {
+        "plugin": "P01 Alpha",
+        "values": [
+          "Yes",
+          "?"
+        ]
+      },
+      {
+        "plugin": "P02 Beta",
+        "values": [
+          "Pro",
+          "Yes"
+        ]
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "id": "R01",
+      "plugin_id": "P01",
+      "source": "Alpha",
+      "rating": 1,
+      "theme": "Filters",
+      "summary": "filters broke",
+      "sentiment": "Negative",
+      "url": "https://r.example"
+    }
+  ],
+  "pains": [
+    {
+      "id": "PN01",
+      "theme": "Filters break",
+      "evidence": "R01",
+      "severity": "High",
+      "evidence_strength": "Medium",
+      "gaps": "G01"
+    }
+  ],
+  "gaps": [
+    {
+      "id": "G01",
+      "gap": "Filter correctness"
+    },
+    {
+      "id": "G02",
+      "gap": "Colour-first"
+    },
+    {
+      "id": "G03",
+      "gap": "Hybrid card"
+    }
+  ],
+  "benefits": [
+    {
+      "id": "B01",
+      "benefit": "Fewer clicks",
+      "strength": "Medium"
+    }
+  ],
+  "demand_proxy": [
+    {
+      "signal": "Plugins in niche",
+      "value": 18,
+      "points": 2
+    }
+  ],
+  "pricing": [
+    {
+      "plugin_id": "P01",
+      "plugin": "Alpha",
+      "tier_1": 49
+    }
+  ],
+  "feature_set": [
+    {
+      "feature": "Colour-first listing",
+      "priority": "MVP",
+      "tier": "Free"
+    }
+  ],
+  "scorecard": {
+    "criteria": [
+      {
+        "name": "Evidence of user pain",
+        "weight": 30
+      },
+      {
+        "name": "Differentiation",
+        "weight": 25
+      },
+      {
+        "name": "Ease of build (5 = easy)",
+        "weight": 15
+      },
+      {
+        "name": "Fit with our portfolio",
+        "weight": 15
+      },
+      {
+        "name": "Revenue potential",
+        "weight": 15
+      }
+    ],
+    "scores": {
+      "G01": [
+        5,
+        4,
+        2,
+        4,
+        5
+      ],
+      "G02": [
+        5,
+        4,
+        4,
+        5,
+        4
+      ],
+      "G03": [
+        4,
+        5,
+        3,
+        5,
+        4
+      ]
+    }
+  },
+  "forecast": {
+    "avg_price": 79,
+    "renewal_rate": 0.7,
+    "first_year_cost": 15000,
+    "scenarios": {
+      "Pessimistic": {
+        "installs": [
+          1000,
+          2500,
+          4000
+        ],
+        "conversion": 0.01
+      },
+      "Realistic": {
+        "installs": [
+          2000,
+          5000,
+          9000
+        ],
+        "conversion": 0.02
+      },
+      "Optimistic": {
+        "installs": [
+          4000,
+          10000,
+          18000
+        ],
+        "conversion": 0.03
+      }
+    }
+  },
+  "verdict": {
+    "factors": [
+      {
+        "name": "Demand",
+        "score": 4,
+        "why": ""
+      },
+      {
+        "name": "Pain strength",
+        "score": 4,
+        "why": ""
+      },
+      {
+        "name": "Willingness to pay",
+        "score": 3,
+        "why": ""
+      },
+      {
+        "name": "Competitor weakness",
+        "score": 4,
+        "why": ""
+      },
+      {
+        "name": "Feature opportunity",
+        "score": 4,
+        "why": ""
+      },
+      {
+        "name": "Ease to build & support",
+        "score": 3,
+        "why": ""
+      },
+      {
+        "name": "Recurring revenue potential",
+        "score": 4,
+        "why": ""
+      }
+    ],
+    "confidence": "Medium"
+  },
+  "sources": [
+    {
+      "id": "S01",
+      "description": "Alpha page",
+      "url": "https://a.example",
+      "type": "Vendor",
+      "reliability": "Medium"
+    }
+  ]
+}

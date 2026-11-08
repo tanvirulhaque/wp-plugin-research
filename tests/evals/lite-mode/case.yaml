@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: lite-mode
+expected_outcome: |
+  Lite mode: 3 deep-research plugins, Final Decision Summary and workbook only, no Technical or Research Report.

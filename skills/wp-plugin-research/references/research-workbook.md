@@ -13,11 +13,23 @@ The report tells the story; the workbook holds the evidence. Every claim in the 
 | Pain_Points | User pains with severity, evidence strength, root cause, how we overcome | PN01… → R IDs, G IDs |
 | Gaps_Opportunities | Opportunities tied to pains and to the user's existing products | G01… |
 | Benefits | What users gain, with evidence type and honest strength | B01… |
+| Health_Metrics | Per-plugin health numbers with the source or fallback used | P IDs |
+| Demand_Proxy | Demand signals and points (playbook §4b) | — |
 | Decision_Scorecard | Editable weights and scores; formulas rank the gaps (top 5) | G IDs |
+| Pricing_Benchmarks | Competitor prices per tier, lifetime deals, trials | P IDs |
+| Final_Feature_Set | Proposed features with priority, Free/Pro, impact, effort, evidence | F IDs → PN / G |
+| Forecast | 3 scenarios × 3 years, formula-driven; yellow inputs | — |
+| Verdict | 7 factor scores (yellow) → total /35 and GO / MAYBE / NO-GO by formula | — |
 | Sources | Every URL with type and reliability | S01… |
 | AI_Facts | One fact per row, auto-generated, for feeding an AI later | all IDs |
 
 The chain: **Source → Review (R) → Pain (PN) → Gap (G) → Scorecard rank → Feature in the report.**
+
+## Starter file and helper
+
+- Start from `assets/research-template.json` (copy it to `research.json` in Phase 2). It already holds every key below, the scorecard criteria, forecast defaults and the verdict factors.
+- Append rows as you research: `python scripts/add_row.py research.json reviews plugin_id=P02 rating=1 theme="Filters" summary="..." url=...` (IDs are added automatically). Mark progress: `python scripts/add_row.py research.json --phase 4`.
+- Turn 1 builds the workbook with the research sheets; turn 2 fills `feature_set`, `pricing`, `forecast` and `verdict` and rebuilds it.
 
 ## JSON shape (all keys optional except plugins)
 
@@ -34,6 +46,13 @@ The chain: **Source → Review (R) → Pain (PN) → Gap (G) → Scorecard rank 
   "benefits": [{"id":"B01","benefit":"","who":"","evidence_type":"vendor claim / user review / independent research","evidence":"","strength":"Strong/Medium/Weak"}],
   "scorecard": {"criteria": [{"name":"Evidence of user pain","weight":30},{"name":"Differentiation","weight":25},{"name":"Ease of build (5 = easy)","weight":15},{"name":"Fit with our portfolio","weight":15},{"name":"Revenue potential","weight":15}],
                 "scores": {"G01":[5,4,2,4,5]}},
+  "health": [{"plugin_id":"P01","plugin":"","installs_floor":10000,"age_years":4.5,"velocity":2200,"momentum":"+8% (tracker)","updates_12m":9,"days_since_update":21,"rating":4.6,"negative_share":0.12,"support_resolved":0.6,"support_load":1.4,"vulns":2,"source":"API / plugin page / tracker"}],
+  "demand_proxy": [{"signal":"Plugins in niche","value":18,"points":2,"source":""}],
+  "pricing": [{"plugin_id":"P01","plugin":"","tier_1":79,"tier_5":149,"tier_unlimited":299,"lifetime":"$499","trial":"14-day refund","url":""}],
+  "feature_set": [{"id":"F01","feature":"","category":"","type":"Must-have / Better / New","priority":"MVP","tier":"Free","impact":"High","effort":"S","evidence":"PN02, G01","why":""}],
+  "forecast": {"avg_price":79,"renewal_rate":0.7,"first_year_cost":15000,"scenarios":{"Realistic":{"installs":[2000,5000,9000],"conversion":0.02}}},
+  "verdict": {"factors":[{"name":"Demand","score":4,"why":"120k niche installs"}],"confidence":"Medium"},
+  "user_products": ["Names of plugins the user already sells (empty = 'Fit with our skills')"],
   "sources": [{"id":"S01","description":"","url":"","type":"Vendor / Marketplace / Forum / Tracker / Independent research","reliability":"High/Medium/Low"}]
 }
 ```
@@ -42,7 +61,7 @@ The chain: **Source → Review (R) → Pain (PN) → Gap (G) → Scorecard rank 
 
 1. Save the JSON to the working folder as you research (add rows as you go).
 2. `python scripts/build_workbook.py research.json [plugin-slug]-research.xlsx`
-3. Recalculate and check for zero errors with the xlsx skill's `recalc.py` (read the xlsx skill first).
+3. Recalculate and check for zero errors with the xlsx skill's `recalc.py` (find it with `find / -name recalc.py -path "*xlsx*" 2>/dev/null | head -1`; read the xlsx skill first). If none exists, formulas calculate when the file opens.
 4. Deliver it next to the report.
 
 ## Data-quality rules
@@ -51,5 +70,6 @@ The chain: **Source → Review (R) → Pain (PN) → Gap (G) → Scorecard rank 
 - Unverified feature → "?", never a guess.
 - Vendor claims that conflict with marketplace data (e.g. "18,000 sold" vs 1.4K CodeCanyon sales) → keep both, flag the conflict, trust the marketplace number.
 - A star rating that contradicts its text (5★ with negative text) → leave the rating blank and note it.
-- If the user has no existing products, drop the "Fit with our portfolio" criterion or rename it "Fit with our skills".
+- If `user_products` is empty, the builder renames "Fit with our portfolio" to "Fit with our skills" automatically.
+- Record conflicting numbers in both values with a note (e.g. "35 vs 67 reviews — tracker vs mirror"); prefer the newest dated source.
 - Exclude piracy and nulled/GPL-resale sites from sources.

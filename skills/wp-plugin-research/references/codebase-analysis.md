@@ -33,17 +33,19 @@ Pick **2–4** from the deep-research shortlist:
 ## 3. How to get the code
 
 **Free versions — get them yourself:**
-- WordPress.org: `https://downloads.wordpress.org/plugin/SLUG.zip` (version history: `https://plugins.svn.wordpress.org/SLUG/`)
-- GitHub (if the seller publishes it): `https://codeload.github.com/OWNER/REPO/zip/refs/heads/BRANCH` — issues and pull requests show real bugs and fixes.
-- If the environment blocks the download, add the plugin to the user request instead.
+- WordPress.org: `https://downloads.wordpress.org/plugin/SLUG.zip` (version history: `https://plugins.svn.wordpress.org/SLUG/`) — if the pre-flight check passed.
+- If wordpress.org is blocked: `python scripts/fetch_code.py SLUG` tries GitHub mirrors (`WordPressBugBounty/plugins-SLUG`, `common-repository/SLUG`) on master/main/trunk via codeload.github.com. **Check the mirror's plugin header `Version` against wordpress.org's stable version** — mirrors can lag; note the mirror and version in Limits.
+- Seller's own GitHub repo (if public) — its issues and pull requests show real bugs and fixes.
+- Still blocked? Add the Free plugin to the user's code request (users can download free plugins in seconds).
 
 **Pro versions — ask the user, once.** Use this format:
 
 ```
-📦 Pro code request — I can't download these paid versions. Please share the ones you can:
+📦 Code request — I can't download these. Please share the ones you can:
 1. [Plugin] Pro — why: [e.g. market leader, see how Pro features are locked]
    Pricing: [link] (cheapest license is enough)
 2. ...
+(Free, download was blocked) [Plugin] — wordpress.org/plugins/[slug]
 Share as: a local folder path (Claude Code / Cowork) or upload the .zip files here.
 Any you don't share, I'll skip and use the rest.
 ```
@@ -61,7 +63,7 @@ If the user doesn't share a Pro plugin, skip it without asking again. Analyze ev
 
 Big plugins have tens of thousands of lines. Don't read everything — map first, then read the important parts.
 
-1. **Map:** run `python scripts/analyze_plugin.py <zip_or_folder> --json out.json`. It lists: header (versions, requirements), size, largest files, WooCommerce hooks used, hooks offered to developers, REST/AJAX/cron entry points, data storage (options, meta, custom tables), HPOS/Blocks declarations, Free/Pro and licensing signals, security and performance signals, architecture style.
+1. **Map:** run `python scripts/analyze_plugin.py <zip_or_folder> --json out.json --quiet`. Bundled SDKs (Freemius, vendor/, lib/…) are counted separately, so sizes reflect the plugin's own code. It also flags **hot-path work** (heavy cart or query work on every-request hooks like `wp_loaded`), caching calls, remote calls worth checking for telemetry, admin vs front-end queries, and AJAX handlers that delegate security checks to WooCommerce core. It lists: header (versions, requirements), size, largest files, WooCommerce hooks used, hooks offered to developers, REST/AJAX/cron entry points, data storage (options, meta, custom tables), HPOS/Blocks declarations, Free/Pro and licensing signals, security and performance signals, architecture style.
 2. **Find the main file** (has the "Plugin Name:" header) → follow how it boots (autoloader, main class, init hooks).
 3. **Trace the core feature:** pick the plugin's main job (e.g. "apply wholesale price") and follow it from the hook into the logic and back to the output. Write the flow as 4–8 simple steps.
 4. **Trace 2–3 edge cases** that users complain about (variable products, coupons, taxes, multi-currency, block checkout).

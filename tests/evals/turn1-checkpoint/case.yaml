@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: turn1-checkpoint
+expected_outcome: |
+  Turn 1 ends with research.json and notes.md saved, the workbook built, a preliminary verdict, and a short message asking the user to reply continue.

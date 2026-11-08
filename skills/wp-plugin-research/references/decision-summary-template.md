@@ -12,6 +12,9 @@ Data as of [date] · Confidence: High / Medium / Low
 |---|---|---|
 | XX / 35 | H/M/L | e.g. "Build a focused MVP around G02 + G03" |
 
+- **Why yes:** 3 strongest reasons, each with one number
+- **Why not:** 3 biggest risks, each with one number
+
 ## 2. Why — in 6 numbers
 | What | Number | Signal |
 |---|---|---|

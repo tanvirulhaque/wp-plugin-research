@@ -1,10 +1,10 @@
 ---
 name: wp-plugin-research
-description: Full business, feature and technical research for a WordPress or WooCommerce plugin idea. The user gives only a plugin name; this skill finds ALL similar plugins (wordpress.org, WooCommerce Marketplace, CodeCanyon, theme built-ins, independent sellers), collects their features, reviews, prices and stats, reads top competitors' code, finds gaps, proposes features with Free/Pro placement, and delivers a short one-page-first decision report plus an evidence workbook (.xlsx) covering demand, money, competitors, technical strategy, pricing, project plan and a GO / NO-GO verdict. Use whenever the user names a WordPress or WooCommerce plugin idea, asks to "research this plugin", "find similar plugins", "analyze competitor features or code", "what features should my plugin have", or "make a plan for my plugin" - even if they do not say "research".
+description: Full business, feature and technical research for a WordPress or WooCommerce plugin idea. The user gives only a plugin name; this skill finds every similar plugin (wordpress.org, WooCommerce Marketplace, CodeCanyon, theme built-ins, independent sellers), collects features, reviews, prices and stats, scans competitors' code, finds gaps, proposes features with Free/Pro placement, and delivers a Final Decision Summary (GO / MAYBE / NO-GO), Research and Technical reports, and an evidence workbook (.xlsx) with forecast, pricing and verdict - run in planned turns with saved progress. Use whenever the user names a WordPress or WooCommerce plugin idea, asks to "research this plugin", "find similar plugins", "analyze competitor features or code", "what features should my plugin have", or "make a plan for my plugin" - even if they do not say "research".
 license: MIT
 compatibility: Needs web search. Python 3.9+ with openpyxl for the workbook and code scripts (optional; falls back to tables). Works in Claude, Claude Code, ChatGPT, Codex, Gemini and other Agent Skills apps.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   author: "Tanvirul Haque"
 ---
 
@@ -16,7 +16,7 @@ The user is building a WordPress/WooCommerce plugin business. They give a plugin
 
 1. **Collect** real data: every similar plugin, its features, prices, stats, reviews, and the top competitors' code.
 2. **Analyze** it: market numbers, feature gaps, user pains, opportunities, scores.
-3. **Present** it so a human can make the right decision quickly: a standalone Final Decision Summary, a Research Report (Decision Page first), a separate Technical Report, and an evidence workbook.
+3. **Present** it so a human can make the right decision quickly: a standalone Final Decision Summary, a Research Report, a separate Technical Report, and an evidence workbook.
 
 The human decides; you prepare the decision. Give options, evidence and a clear recommendation, with your confidence. Never hide uncertainty or bad news. **Features are the heart of the analysis** — technical plan, pricing, project plan and marketing are all organized around the proposed feature set.
 
@@ -28,11 +28,25 @@ This skill uses the open Agent Skills format and runs in Claude, ChatGPT, Gemini
 
 | Stage | Phases | Goal |
 |---|---|---|
-| 1. Find | 1–3 | Understand the idea, find all similar plugins, shortlist, request Pro code |
+| 1. Find | 1–3 | Understand the idea, find all similar plugins, shortlist, choose code to study |
 | 2. Collect | 4–5 | Plugin cards, reviews, numbers |
 | 3. Analyze | 6–9 | Features, pains, gaps, scorecard, positioning, competitor code |
 | 4. Plan | 10–14 | Technical plan, pricing, project plan, marketing |
 | 5. Decide & deliver | 15–16 + Output | Score, verdict, validation plan, 4 deliverables |
+
+## Run plan — plan in turns from the start
+
+A full run rarely fits in one reply (tool-call caps, context). Follow `references/run-plan.md`:
+
+| Turn | Covers | Ends with |
+|---|---|---|
+| 1 — Research | Stages 1–3 (+ light scan of Free code) | `research.json` + `notes.md` saved, workbook built, short "reply continue" message |
+| 2 — Reports | Stages 4–5 | 4 deliverables + Pro code request |
+| 3 — Pro code (optional) | Deep code check | Updated Technical Report |
+
+- **Resume rule:** if `research.json` exists, read it and `notes.md` and continue from the phase after `phase_done` — never restart.
+- **Modes:** Full (default) or **Lite** ("quick"/"lite", or a tiny niche): 3 deep plugins, Final Decision Summary + workbook only.
+- Keep a **coverage checklist** in `notes.md` and copy it into Limits & coverage.
 
 ## Keep it simple — without losing data
 
@@ -50,7 +64,7 @@ The user is making a business decision and reads fast; long text hides findings.
 2. **Short and plain:** sentences of ~15 words, words a 5th-grader knows; explain a technical term in 3–5 words once.
 3. **Tables, not paragraphs:** one idea per bullet, one line per bullet.
 4. **No filler or repetition.**
-5. **Signals:** ✅ good · ⚠️ watch · ❌ bad · 🔥 top priority · ? not verified; High / Medium / Low instead of long explanations.
+5. **Signals:** ✅ good · ⚠️ watch · ❌ bad · 🔥 top priority · ? not verified; High / Medium / Low instead of long explanations. In Claude Docs use words instead of emoji (Good / Watch / Bad / Top priority / Not verified).
 6. **End each section with "→ What this means:"** — the decision or action, in one line.
 7. **Lean:** show what drives the decision (top items, key numbers); full lists go to the workbook or appendix. Most sections fit one screen.
 8. **Transparent in one line:** a number's source or math, plus confidence.
@@ -62,7 +76,7 @@ Be honest: if the idea is weak, say so and suggest a better angle. Never promise
 
 A plugin name, a one-line idea, or a link to a plugin they want to beat. If too vague to search (e.g. "a store plugin"), ask ONE short question. Otherwise start right away.
 
-If the user already sells plugins, note them (names, what they do). They change the analysis: their own support forums and reviews are evidence of demand, and opportunities that reuse their products (shared data, bundles, cross-sells) score higher on "fit with our portfolio".
+If the user says "quick" or "lite", use Lite mode. If the user already sells plugins, note them in `user_products`: their own forums and reviews are demand evidence, and opportunities that reuse their products score higher on "fit with our portfolio". If they haven't said, ask at the end of turn 1.
 
 ## Research rules
 
@@ -70,10 +84,9 @@ If the user already sells plugins, note them (names, what they do). They change 
 - **Search each plugin separately**; paraphrase reviews; keep a source link for every number and feature list.
 - **Label claims:** **Fact** (seen in a source), **Estimate** (show the math) or **Assumption** (judgment). Date key numbers; flag data older than 12 months.
 - **Look for evidence against the idea too** — research supports a decision, it doesn't cheer for the idea.
-- **Data quality:** unverified feature → "?"; vendor claim vs marketplace data conflict → keep both, flag it; star rating contradicting its text → leave it out. Exclude piracy and nulled/GPL-resale sites.
-- **Record as you go and keep context lean:** start `research.json` (format in `references/research-workbook.md`) in Phase 2; write findings into it right after reading a page, and write long reports to files section by section, so a long run doesn't run out of room.
-- **Blocked downloads:** if wordpress.org downloads or its API are blocked, read plugin pages with web fetch, use GitHub for Free code, and add blocked plugins to the code request.
-- Expect roughly 40–80 searches/fetches plus code downloads. That's normal — don't stop early.
+- **Sources and data quality:** follow `references/sources.md` — pre-flight check of wordpress.org access, **search first, then fetch** (most fetch tools reject typed URLs), page-size limits, the fallback chain when wordpress.org is blocked, the piracy blocklist, and rules for vendor pages, conflicting numbers, duplicates and review spread. Unverified feature → "?"; a star rating contradicting its text → leave it out.
+- **Record as you go:** append findings to `research.json` right after each page (`scripts/add_row.py`; starter file `assets/research-template.json`), and keep `notes.md` updated, so a cut-off loses nothing.
+- Expect roughly 40–80 searches/fetches in Full mode, split across turns with the per-phase budgets in `run-plan.md`. Budgets plan the turns; they never cut data — if a phase runs over, save and continue it next turn.
 
 ---
 
@@ -87,16 +100,16 @@ If the user already sells plugins, note them (names, what they do). They change 
 
 ## PHASE 2 — Discover every similar plugin
 
-Search every source with several keywords:
+Start with the pre-flight check and the required early searches (current WP/WC versions, WooCommerce store count) in `references/sources.md`. Then search every source with several keywords:
 
 | Source | How to search |
 |---|---|
-| WordPress.org | "site:wordpress.org/plugins [keyword]". If reachable, the API `https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[search]=KEYWORD&request[per_page]=30` returns names, installs, ratings and update dates in one call. |
+| WordPress.org | "site:wordpress.org/plugins [keyword]". If the pre-flight check passed, the Plugins API returns installs, ratings and dates for many plugins in one call (see `analytics-playbook.md` §1); otherwise use the fallback chain |
 | WooCommerce Marketplace | "site:woocommerce.com/products [keyword]" |
-| CodeCanyon | "site:codecanyon.net [keyword] woocommerce" (sales counts, prices) |
+| CodeCanyon | "codecanyon woocommerce [keyword]" to find items → open each item page (sales count, price); avoid search pages |
 | "Best plugin" lists | "best woocommerce [keyword] plugins [current year]" — open 2–3 articles |
 | Independent sellers | "[keyword] plugin pricing" (YITH, WebToffee, Barn2, StoreApps, Iconic, WPFactory, ThemeHigh, etc.) |
-| Communities | Reddit r/woocommerce, r/WordPress, Facebook groups: "which plugin for [job]" |
+| Communities | "site:reddit.com/r/woocommerce [keyword]", r/WordPress, "which plugin for [job]", wordpress.org support forums, WooCommerce community, Facebook groups (rarely indexable — use if the user shares posts) — real threads only, not SEO articles about them |
 | GitHub (optional) | Open-source alternatives |
 | Theme built-ins & suites | Popular WooCommerce themes (e.g. WoodMart, Flatsome, Astra/Kadence add-ons) and multi-feature suites often include this feature — they are competitors too, and their users' complaints are evidence |
 | User's own products | If the user sells related plugins, search their support forums and reviews for requests about this idea |
@@ -106,7 +119,7 @@ Search every source with several keywords:
 
 | # | Plugin | Seller | Where sold | Free / Paid / Freemium | Installs or sales | Rating | Last update | Link |
 
-Remove duplicates. Mark plugins with no update in 12+ months as **abandoned** — their users may switch.
+Remove duplicates (dedupe wordpress.org results by slug). Mark plugins with no update in 12+ months as **abandoned** — their users may switch.
 
 ## PHASE 3 — Shortlist
 
@@ -115,7 +128,7 @@ Remove duplicates. Mark plugins with no update in 12+ months as **abandoned** �
 
 One line on why each deep-research plugin was chosen.
 
-**Code Request.** Pick the 2–4 plugins whose code would teach the most (the leader, the best-rated or fastest-growing, one with many complaints). Download Free versions yourself; ask the user once for the Pro versions in one short list (format in `references/codebase-analysis.md` §3). You can only talk to the user between turns, so in a chat don't stop to wait: finish everything and put the request at the end of your delivery (the Technical Report marks those parts "waiting for Pro code"). If code is already shared, use it right away.
+**Code to study.** Pick the 2–4 plugins whose code would teach the most (the leader, the best-rated or fastest-growing, one with many complaints). Phase 9 collects it; the user is asked once — at the end of turn 2 — for Pro versions and any Free versions whose download was blocked (format in `references/codebase-analysis.md` §3). Never stop research to wait for code; if code is already shared, use it.
 
 **Review Log.** From here on, log every review, forum thread and research item you use as one row with an ID (R01, R02…): plugin, platform, rating, date, persona if visible, theme, paraphrased summary, sentiment, link. Pains and gaps later cite these IDs, so every conclusion has traceable evidence.
 
@@ -123,7 +136,7 @@ One line on why each deep-research plugin was chosen.
 
 ## PHASE 4 — Research each shortlisted plugin
 
-Visit the listing page, pricing page, **features page, documentation, and changelog** (the changelog shows recently added features and the product direction), plus reviews and the support forum.
+Visit the listing page, pricing page, **features page, documentation, and changelog** (the changelog shows recently added features and the product direction), plus the **1–2★ review pages** and the support forum, and check **security history** (Patchstack / WPScan). Budget 2–3 calls per plugin; use search-then-fetch and the fallbacks in `references/sources.md`.
 
 Fill one **Plugin Card** per plugin, in the format in `references/plugin-card.md` (stats, compatibility, health metrics, full feature list by category, love/hate, support, messaging, mini SWOT, weak spot).
 
@@ -135,9 +148,9 @@ Follow `references/analytics-playbook.md` (metrics, sources, formulas, threshold
 
 | Block | Key output |
 |---|---|
-| 5.1 Competitor health | Per plugin: installs, age, velocity, momentum, update cadence, rating, negative share, support resolution & load, HPOS/Blocks (wordpress.org API when reachable) |
+| 5.1 Competitor health | Per plugin: installs, age, velocity, momentum, update cadence, rating, negative share, support resolution & load, HPOS/Blocks (API when reachable; otherwise the metric fallback map, playbook §2b) |
 | 5.2 Market structure | Total niche installs, leader & top-3 share, new-entrant success, abandoned & paid share, WooCommerce store trend, TAM/SAM/SOM |
-| 5.3 Demand | Search volume & trend, directory ranking, community & freelance demand → Low / Medium / High |
+| 5.3 Demand | Search volume & trend if available, directory ranking (who owns the top results), community & freelance demand; without keyword tools use the **demand proxy score** (playbook §4b) → Low / Medium / High |
 | 5.4 Money | Sales × price, price distribution, revenue estimates → willingness to pay Low / Medium / High |
 | 5.5 Sentiment & support | Complaint themes, recent vs lifetime rating, reply speed |
 | 5.6 Risk | Security history, core overlap, big players, dependencies, support burden |
@@ -201,20 +214,7 @@ Placement rules:
 - **Pro** gets features that save time or make money (automation, advanced rules, reports, integrations, bulk tools).
 - **MVP** = all must-haves + 2–3 standout features that make the edge obvious. Keep it small enough to ship in weeks, not months.
 
-**7.3 Feature Priority Map**
-A simple impact × effort view:
-- **Quick wins** (high impact, low effort) → MVP
-- **Big bets** (high impact, high effort) → v1.1 / v2
-- **Fill-ins** (low impact, low effort) → when time allows
-- **Skip** (low impact, high effort)
-
-**7.4 Feature specs for MVP features**
-For each MVP feature, a mini-spec:
-- What the user sees and does (2–4 steps)
-- Settings/options it needs
-- Where it shows (admin page, product page, cart, checkout, emails, My Account)
-- Edge cases to handle (variable products, coupons, taxes, multi-currency, guest checkout, etc. — only what applies)
-- "Done when…" acceptance check
+**7.3 Feature Priority Map** and **7.4 MVP feature specs** — follow `references/feature-ideas.md` (quick wins / big bets / fill-ins / skip; a mini-spec with steps, settings, placement, edge cases and a "done when" check for each MVP feature).
 
 ## PHASE 8 — Positioning
 
@@ -227,8 +227,8 @@ For each MVP feature, a mini-spec:
 
 Reading competitors' code shows how they really solve the problem, why users complain, and how they lock Pro features. Follow `references/codebase-analysis.md`. In short:
 
-1. **Collect code:** download Free versions yourself (wordpress.org or GitHub); Pro versions only from the user (the Code Request). Skip any Pro version not shared, and mark those findings "not code-verified". Never use nulled copies.
-2. **Map it:** `python scripts/analyze_plugin.py <zip_or_folder> --json <slug>.json`, then `python scripts/compare_code.py "A=a.json" "B=b.json"` for the side-by-side table.
+1. **Collect code:** turn 1 = light scan of Free versions you download yourself (wordpress.org, or `scripts/fetch_code.py SLUG` for GitHub mirrors — check the mirror's version against wordpress.org). Turn 3 = deep check on Pro code the user shares. Skip any Pro version not shared and mark those findings "not code-verified". Never use nulled copies.
+2. **Map it:** `python scripts/analyze_plugin.py <zip_or_folder> --json <slug>.json --quiet` (it separates bundled SDKs, flags hot-path cart work, caching, telemetry and admin vs front-end queries), then `python scripts/compare_code.py "A=a.json" "B=b.json"` for the side-by-side table.
 3. **Read and judge:** core feature flow, edge cases users complain about, flagged files — scored on the 15 lenses.
 4. **Link complaints to code causes** and write **Our Technical Strategy** for the Technical Report. Learn the pattern; don't clone the code.
 
@@ -264,15 +264,7 @@ Usually ~12 weeks for MVP: validation → core setup → MVP features (in priori
 
 ## PHASE 15 — Score and verdict
 
-| Factor | Score 1–5 | Why |
-|---|---|---|
-| Demand | | |
-| Pain strength | | |
-| Willingness to pay | | |
-| Competitor weakness | | |
-| Feature opportunity (real gaps + strong new ideas) | | |
-| Ease to build & support | | |
-| Recurring revenue potential | | |
+Score 1–5, with the number behind each: **Demand · Pain strength · Willingness to pay · Competitor weakness · Feature opportunity · Ease to build & support · Recurring revenue potential** (the workbook's Verdict sheet totals them by formula).
 
 Base each score on the Phase 5 numbers and the thresholds in the playbook (§9), and quote the number that justifies it (e.g. "Demand 4/5 — 120k niche installs, rising trend").
 
@@ -294,14 +286,15 @@ Landing page + waitlist showing the top 3–5 proposed features. Ask visitors to
 | # | Deliverable | For | Template |
 |---|---|---|---|
 | 1 | **Final Decision Summary** (standalone, 2–4 pages) | The decision-maker — read first | `references/decision-summary-template.md` |
-| 2 | **Research Report** (business, market, features) — opens with a one-screen **Decision Page** | Checking the reasoning | `references/report-template.md` |
+| 2 | **Research Report** (business, market, features) — opens with the Opportunity Dashboard; the decision itself lives only in the Final Decision Summary | Checking the reasoning | `references/report-template.md` |
 | 3 | **Technical Report** (code, architecture, build plan) | The builder | `references/technical-report-template.md` |
 | 4 | **Research Workbook** (.xlsx) — all evidence, editable scorecard | Checking proof, changing priorities | `references/research-workbook.md` |
 
-- **Order:** workbook data → Research Report → Technical Report → Final Decision Summary (it summarizes the others, so write it last).
-- **Workbook:** `python scripts/build_workbook.py research.json [slug]-research.xlsx`, then recalculate (the xlsx skill's `recalc.py` if available; otherwise formulas calculate when opened).
+- **Order:** workbook built at the end of turn 1; in turn 2: Research Report → Technical Report → Final Decision Summary (it summarizes the others, so write it last), then rebuild the workbook with the turn-2 sheets (feature set, pricing, forecast, verdict).
+- **Workbook:** `python scripts/build_workbook.py research.json [slug]-research.xlsx`, then recalculate (find `recalc.py` as shown in `references/portability.md`; otherwise formulas calculate when opened).
 - **Technical Report** is made by default; skip it only for "business only". Without competitor code, still make it from Phases 10–11 and mark the code sections missing.
+- **No repeats:** the Summary states the decision; the other reports link to it instead of restating it.
 - **Lean reports:** top items and key numbers only; full lists live in the workbook or appendix. Under each title: "Data as of [date]"; keep Fact / Estimate / Assumption labels visible.
 - **Research Report ends with:** Build handoff (first 5 actions + companion dev skills; tell the user to review third-party skills before installing) → Appendix → Limits & coverage → Sources.
 
-**Delivery:** each report as a document the user can keep (Claude Docs if available — follow that tool's own instructions — otherwise Markdown files), plus the .xlsx. Present the Final Decision Summary first. In chat, only a 4–6 line summary: verdict, score, plugins and features analyzed, top 3 new features, next step — then the Pro code request, if any.
+**Delivery:** each report as a document the user can keep — with Claude Docs, follow **Claude Docs mode** in `references/portability.md` (create docs at the start of turn 2, one doc with Summary · Research · Technical tabs, grouped writes, no emoji); otherwise Markdown files — plus the .xlsx. Present the Final Decision Summary first. In chat, only a 4–6 line summary: verdict, score, plugins and features analyzed, top 3 new features, next step — then the Pro code request, if any.

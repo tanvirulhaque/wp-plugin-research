@@ -15,17 +15,7 @@ Main report = decision-driving highlights only (top 5s, key numbers). Full lists
 # [Plugin Idea] — Research Report
 Data as of [date] · Labels: Fact / Estimate / Assumption
 
-## 🧭 Decision Page (read this first)
-| Block | Content |
-|---|---|
-| Verdict | GO / MAYBE / NO-GO · Score XX/35 · Confidence H/M/L |
-| Why yes | 3 reasons, each with one number |
-| Why not | 3 risks, each with one number |
-| Key numbers | 5–6 numbers |
-| Top 5 opportunities | one line each |
-| Your decisions | 2–4 choices + options + my recommendation |
-| What would change my mind | 1–3 facts |
-| Next step | one action |
+> **The decision is in the Final Decision Summary.** This report shows the reasoning; it doesn't repeat the verdict.
 
 ## 📊 Opportunity Dashboard
 (format from analytics-playbook.md §10) + TAM/SAM/SOM + good signs / red flags

@@ -18,9 +18,18 @@ jobs:
           pip install "git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref"
       - name: Validate against the Agent Skills spec
         run: skills-ref validate skills/wp-plugin-research
+      - name: Check SKILL.md size and pointers
+        run: python tools/check_skill.py skills/wp-plugin-research
       - name: Check scripts compile
         run: python -m py_compile skills/wp-plugin-research/scripts/*.py
       - name: Smoke test workbook builder
         run: python skills/wp-plugin-research/scripts/build_workbook.py tests/sample-research.json /tmp/sample.xlsx
+      - name: Smoke test code scanner
+        run: |
+          python skills/wp-plugin-research/scripts/analyze_plugin.py tests/fixtures/demo-plugin --json /tmp/demo.json --quiet
+          python -c "import json; r=json.load(open('/tmp/demo.json')); assert r['performance']['hot_path'], 'hot path not detected'; assert r['size']['bundled_dirs'].get('freemius'), 'bundled SDK not separated'"
+          python skills/wp-plugin-research/scripts/compare_code.py "Demo=/tmp/demo.json" > /dev/null
+      - name: Smoke test add_row
+        run: python skills/wp-plugin-research/scripts/add_row.py /tmp/r.json plugins name=Test url=https://example.com
       - name: Build release files
         run: bash tools/package.sh

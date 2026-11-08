@@ -52,6 +52,23 @@ TABLES = {
         ("id", "ID"), ("benefit", "Benefit users get"), ("who", "Who benefits"),
         ("evidence_type", "Evidence type (vendor claim / user review / independent research)"),
         ("evidence", "Evidence"), ("strength", "Strength")]),
+    "health": ("Health_Metrics", [
+        ("plugin_id", "Plugin ID"), ("plugin", "Plugin"), ("installs_floor", "Installs (band floor)"),
+        ("age_years", "Age (years)"), ("velocity", "Installs per year (est.)"), ("momentum", "Momentum"),
+        ("updates_12m", "Releases last 12 months"), ("days_since_update", "Days since update"),
+        ("rating", "Rating"), ("negative_share", "1-2 star share"), ("support_resolved", "Support resolved %"),
+        ("support_load", "Threads per 1k installs"), ("vulns", "Known vulnerabilities"),
+        ("source", "Source / fallback used")]),
+    "demand_proxy": ("Demand_Proxy", [
+        ("signal", "Signal"), ("value", "Value found"), ("points", "Points (0-2)"), ("source", "Source")]),
+    "pricing": ("Pricing_Benchmarks", [
+        ("plugin_id", "Plugin ID"), ("plugin", "Plugin"), ("tier_1", "1 site (USD/yr)"),
+        ("tier_5", "5 sites (USD/yr)"), ("tier_unlimited", "Unlimited (USD/yr)"),
+        ("lifetime", "Lifetime deal"), ("trial", "Trial / refund"), ("url", "Pricing URL")]),
+    "feature_set": ("Final_Feature_Set", [
+        ("id", "ID"), ("feature", "Feature"), ("category", "Category"), ("type", "Type (Must-have / Better / New)"),
+        ("priority", "Priority (MVP / v1.1 / v2 / Later)"), ("tier", "Free or Pro"), ("impact", "Impact"),
+        ("effort", "Effort"), ("evidence", "Evidence (PN / G IDs)"), ("why", "Why")]),
     "sources": ("Sources", [
         ("id", "ID"), ("description", "Description"), ("url", "URL"),
         ("type", "Type"), ("reliability", "Reliability")]),
@@ -99,6 +116,10 @@ def build(data, out):
         readme.append((TABLES[k][0], f"{len(data[k])} rows"))
     if data.get("features"):
         readme.append(("Feature_Matrix", "Plugins x features. Yes = confirmed, Pro = paid tier only, Partial = limited, No = missing, ? = not verified"))
+    if data.get("forecast"):
+        readme.append(("Forecast", "Revenue scenarios for years 1-3; edit the yellow inputs (installs, conversion, price, renewal, cost)"))
+    if data.get("verdict") and any(f.get("score") for f in data["verdict"]["factors"]):
+        readme.append(("Verdict", "7 factor scores (yellow, 1-5); total out of 35 and GO / MAYBE / NO-GO update automatically"))
     if data.get("scorecard"):
         readme.append(("Decision_Scorecard", "Edit the yellow cells (weights and scores); weighted score and rank update automatically"))
     readme.append(("AI_Facts", "One fact per row, generated from the other sheets, for feeding to an AI later"))
@@ -114,7 +135,13 @@ def build(data, out):
     ws["A1"].font = Font(name=FONT, bold=True, size=14)
     ws.column_dimensions["A"].width, ws.column_dimensions["B"].width = 22, 110
 
-    order = ["plugins", "features", "reviews", "pains", "gaps", "benefits", "scorecard", "sources"]
+    # no user products -> portfolio criterion becomes skills fit (as the reference says)
+    if data.get("scorecard") and not data.get("user_products"):
+        for c in data["scorecard"]["criteria"]:
+            if "portfolio" in c["name"].lower():
+                c["name"] = "Fit with our skills"
+    order = ["plugins", "health", "features", "reviews", "pains", "gaps", "benefits", "demand_proxy",
+             "scorecard", "pricing", "feature_set", "forecast", "verdict", "sources"]
     for key in order:
         if key == "features" and data.get("features"):
             f = data["features"]
@@ -124,8 +151,12 @@ def build(data, out):
             write_table(fs, cols, rows)
             for i in range(2, len(cols) + 1):
                 fs.column_dimensions[get_column_letter(i)].width = 16
-        elif key == "scorecard" and data.get("scorecard"):
+        elif key == "scorecard" and data.get("scorecard") and data["scorecard"].get("scores"):
             build_scorecard(wb, data)
+        elif key == "forecast" and data.get("forecast"):
+            build_forecast(wb, data["forecast"])
+        elif key == "verdict" and data.get("verdict") and any(f.get("score") for f in data["verdict"]["factors"]):
+            build_verdict(wb, data["verdict"])
         elif key in TABLES and data.get(key):
             name, cols = TABLES[key]
             write_table(wb.create_sheet(name), cols, data[key])
@@ -212,6 +243,84 @@ def build_scorecard(wb, data):
     ws.column_dimensions["A"].width, ws.column_dimensions["B"].width = 12, 48
     for col in range(first, last + 3):
         ws.column_dimensions[get_column_letter(col)].width = 16
+
+
+def _inp(cell, value, fmt=None):
+    cell.value = value
+    cell.font, cell.fill = INPUT_FONT, INPUT_FILL
+    if fmt: cell.number_format = fmt
+
+
+def build_forecast(wb, f):
+    ws = wb.create_sheet("Forecast")
+    ws["A1"] = "Revenue forecast - estimates, edit the yellow inputs"
+    ws["A1"].font = Font(name=FONT, bold=True, size=12)
+    labels = [("Average yearly price (USD)", f.get("avg_price", 79), '"$"#,##0'),
+              ("Renewal rate (share renewing yearly)", f.get("renewal_rate", 0.7), "0%"),
+              ("First-year cost to build & launch (USD)", f.get("first_year_cost", 15000), '"$"#,##0')]
+    for i, (lab, val, fmt) in enumerate(labels, 3):
+        ws.cell(row=i, column=1, value=lab).font = BOLD
+        _inp(ws.cell(row=i, column=2), val, fmt)
+    heads = ["Scenario", "Year", "Free installs (end of year)", "Conversion", "New paying customers",
+             "Renewing customers", "New revenue", "Renewal revenue", "Total revenue"]
+    hr = 8
+    for i, h in enumerate(heads, 1):
+        ws.cell(row=hr, column=i, value=h)
+    style_header(ws, hr, len(heads))
+    r = hr + 1
+    totals = {}
+    for name, sc in f.get("scenarios", {}).items():
+        first = r
+        for y in range(3):
+            ws.cell(row=r, column=1, value=name).font = BODY_FONT
+            ws.cell(row=r, column=2, value=y + 1).font = BODY_FONT
+            _inp(ws.cell(row=r, column=3), sc["installs"][y], "#,##0")
+            _inp(ws.cell(row=r, column=4), sc["conversion"], "0.0%")
+            prev = f"C{r-1}" if y else "0"
+            ws.cell(row=r, column=5, value=f"=ROUND(MAX(C{r}-{prev},0)*D{r},0)").number_format = "#,##0"
+            ws.cell(row=r, column=6, value=f"=ROUND((E{r-1}+F{r-1})*$B$4,0)" if y else 0).number_format = "#,##0"
+            ws.cell(row=r, column=7, value=f"=E{r}*$B$3").number_format = '"$"#,##0'
+            ws.cell(row=r, column=8, value=f"=F{r}*$B$3").number_format = '"$"#,##0'
+            ws.cell(row=r, column=9, value=f"=G{r}+H{r}").number_format = '"$"#,##0'
+            r += 1
+        totals[name] = (first, r - 1)
+    r += 1
+    ws.cell(row=r, column=1, value="Break-even").font = BOLD
+    ws.cell(row=r + 1, column=1, value="Paying customers needed in year 1")
+    ws.cell(row=r + 1, column=2, value="=ROUNDUP($B$5/$B$3,0)").number_format = "#,##0"
+    rr = r + 2
+    for name, (a, b) in totals.items():
+        ws.cell(row=rr, column=1, value=f"{name}: 3-year total revenue")
+        ws.cell(row=rr, column=2, value=f"=SUM(I{a}:I{b})").number_format = '"$"#,##0'
+        rr += 1
+    ws.cell(row=rr + 1, column=1, value="Math: new customers = new installs x conversion; renewals = last year's paying customers x renewal rate. All figures are estimates.").font = BODY_FONT
+    ws.column_dimensions["A"].width = 42
+    for c in "BCDEFGHI":
+        ws.column_dimensions[c].width = 16
+
+
+def build_verdict(wb, v):
+    ws = wb.create_sheet("Verdict")
+    ws["A1"] = "Verdict - edit the yellow scores (1-5); total and verdict update automatically"
+    ws["A1"].font = Font(name=FONT, bold=True, size=12)
+    for i, h in enumerate(["Factor", "Score (1-5)", "Why (the number behind it)"], 1):
+        ws.cell(row=3, column=i, value=h)
+    style_header(ws, 3, 3)
+    r = 4
+    for fct in v["factors"]:
+        ws.cell(row=r, column=1, value=fct["name"]).font = BODY_FONT
+        _inp(ws.cell(row=r, column=2), fct.get("score", 0))
+        ws.cell(row=r, column=3, value=fct.get("why", "")).font = BODY_FONT
+        r += 1
+    last = r - 1
+    ws.cell(row=r + 1, column=1, value="Total (out of 35)").font = BOLD
+    ws.cell(row=r + 1, column=2, value=f"=SUM(B4:B{last})")
+    ws.cell(row=r + 2, column=1, value="Verdict").font = BOLD
+    ws.cell(row=r + 2, column=2, value=f'=IF(B{r+1}>=28,"GO",IF(B{r+1}>=21,"MAYBE","NO-GO"))')
+    ws.cell(row=r + 3, column=1, value="Confidence").font = BOLD
+    ws.cell(row=r + 3, column=2, value=v.get("confidence", "Medium"))
+    ws.cell(row=r + 5, column=1, value="Rule: 28-35 GO, 21-27 MAYBE, below 21 NO-GO.").font = BODY_FONT
+    ws.column_dimensions["A"].width, ws.column_dimensions["B"].width, ws.column_dimensions["C"].width = 32, 14, 70
 
 
 if __name__ == "__main__":
