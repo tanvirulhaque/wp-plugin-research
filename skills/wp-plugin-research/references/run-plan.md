@@ -13,14 +13,18 @@ A full run does not fit in one reply on most agents (tool-call caps per turn, co
 
 | Turn | Does | Ends with |
 |---|---|---|
-| **1 — Research** | Stages 1–3: pre-flight check, discovery, plugin cards, analytics, features, pains, gaps, scorecard, light code scan of Free versions | `research.json` + `notes.md` saved, **workbook built**, then a short chat message (below) |
-| **2 — Reports** | Stages 4–5: technical plan, pricing, project plan, marketing, score, deliverables | All reports delivered + Pro code request (if any) |
+| **0 — Capability check** (~2 min) | Local WordPress install and plugins? Agent browser able to run page scripts? User willing to use rung 4 (their browser) — give the one-time setup now? Python + openpyxl? (`collectors.md` §2) | Answers in `notes.md`; a starting rung per source |
+| **1 — Research** | Stages 1–3: local plugins first, pre-flight, **wide discovery** (keywords × 2 pages + tags), plugin cards, **all-plugin code-signal scan**, **support-thread mining**, low-star + newest 5★ reviews, **Marketplace review collector**, **Trends + autocomplete**, **Reddit via the user's browser**, newcomer metric, core-overlap check, analytics, features, pains, gaps, scorecard | `research.json` + `notes.md` saved, **workbook built**, end-of-turn message **with the code request** (below) |
+| **2 — Reports** | Stages 4–5: ask Claude Docs or files once (files by default in a local code project), technical plan, pricing, project plan, marketing, score, deliverables | All reports delivered |
 | **3 — Pro code (optional)** | Deep code check on code the user shares | Updated Technical Report and any affected scores |
 
 End-of-turn-1 message (keep it this short):
 ```
-Research done: N plugins found, X deep-researched, Y pains, Z gaps.
+Research done: N plugins screened → M in the niche, X deep-researched, Y pains, Z gaps.
+Deep plugins: [names] — exact-name match: [plugin with the idea's exact name, or "none found"].
 Early read: [GO / MAYBE / NO-GO] (preliminary).
+Sources: [source → rung that worked, one line each]. Still missing: [item → what you can do].
+Code request: [Pro plugins + price + what each would add to the decision] (skip any).
 Workbook: [file]. Reply "continue" for the full reports.
 Optional: do you already sell plugins? Name them — it changes the "fit" score.
 ```
@@ -30,12 +34,15 @@ If the agent can do everything in one turn (no cap hit), or the user asks for a 
 
 | Phase | Calls |
 |---|---|
-| Pre-flight + versions + store count | 3 |
-| Discovery (Phase 2) | ~20 |
+| Capability check + pre-flight + versions + store count | 5 |
+| Discovery (Phase 2) | ~10 calls + `wporg_discover.py` (scripts don't count against the budget) |
 | Plugin cards (Phase 4) | ~15 (2–3 per plugin) |
 | Analytics gaps (Phase 5) | ~8 |
-| Light code scan (Phase 9) | ~6 |
+| Code scan (Phase 9) | ~6 + `scan_signals.py` over every Free plugin |
+| Collectors (reviews, threads, Trends, Reddit) | scripted; ~5 agent calls to run and save them |
 | Delivery (turn 2) | ~10–15 |
+
+**Subagents** (if available): use them for vendor pricing pages and security history; keep reviews, forums and code in the main session with scripts (subagent fetches are summarised and hit the same blocks). Subagents must report what was blocked.
 
 Lite mode: about half. The budget is a **guide for planning turns, not a cap on data**: when a phase hits its budget, save progress and continue it in the next turn — don't drop it. Only skip a source when it is truly unreachable, and record that in the coverage checklist.
 

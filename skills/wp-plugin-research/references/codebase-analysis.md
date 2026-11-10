@@ -38,12 +38,14 @@ Pick **2–4** from the deep-research shortlist:
 - Seller's own GitHub repo (if public) — its issues and pull requests show real bugs and fixes.
 - Still blocked? Add the Free plugin to the user's code request (users can download free plugins in seconds).
 
-**Pro versions — ask the user, once.** Use this format:
+**Local copies first:** before asking, look in the user's `wp-content/plugins/`, `./competitors/` and any path they name — they may already have paid competitors installed.
+
+**Pro versions — ask the user, once, at the end of turn 1** (so code can arrive before the reports). Say what each purchase would add to the decision, so the user can skip low-value ones. Use this format:
 
 ```
 📦 Code request — I can't download these. Please share the ones you can:
 1. [Plugin] Pro — why: [e.g. market leader, see how Pro features are locked]
-   Pricing: [link] (cheapest license is enough)
+   Pricing: [link] (cheapest license is enough) — would confirm: [what the decision gains]
 2. ...
 (Free, download was blocked) [Plugin] — wordpress.org/plugins/[slug]
 Share as: a local folder path (Claude Code / Cowork) or upload the .zip files here.
@@ -58,6 +60,18 @@ Tips for the user: Free and Pro in separate, clearly named folders/zips (`leader
 
 **Missing Pro code — skip, don't block:**
 If the user doesn't share a Pro plugin, skip it without asking again. Analyze everything available, and in the report list which Pro versions weren't analyzed. For those, base Free/Pro findings on the Free code plus the public Pro feature list, and label them "not code-verified".
+
+## 3b. Pro without the zip (label every finding "not code-verified")
+
+- **Live demo probe:** open the vendor's public demo product page in the agent browser and run `scripts/collectors/demo-probe.js` — gallery markup, whether the native `.woocommerce-product-gallery` / zoom / lightbox survive, video embeds and facades, which scripts and styles load and their weight. Public front-end assets show how Pro renders.
+- **Pro changelog and docs:** parse for features, fix patterns and release cadence.
+- **Free-code hooks:** list `do_action` / `apply_filters` points and `class_exists( '…Pro' )` checks in the Free plugin — they show what Pro plugs into.
+- **Forums and reviews** that mention Pro behaviour.
+
+## 3c. All-plugin signal scan and core overlap
+
+- Run `scripts/scan_signals.py --dirs code/ wp-content/plugins/ --signals signals.json` over **every** Free plugin found (not only the deep ones). Write a niche signals file (e.g. gallery replacement, native-gallery hooks, block filters, facade, schema, CSV, REST, WP-CLI, tests). Any "nobody does X" claim must cite this scan: "0 of N scanned".
+- **Core overlap:** if WooCommerce is installed locally (or via its GitHub source), grep core for the feature and read the class — it shows exactly what core does and doesn't cover (e.g. "uploaded video only, internal namespace").
 
 ## 4. Step-by-step reading method
 

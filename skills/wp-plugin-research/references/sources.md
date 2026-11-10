@@ -1,5 +1,7 @@
 # Sources — how to reach data, fallbacks, and quality rules
 
+This file covers **where** to look and **quality rules**. **How** to collect when a tool can't read a page — the collection ladder, in-page collectors, the user's browser — is in `collectors.md`. Do loops in Python, not shell, and quote every glob.
+
 ## 1. Pre-flight check (start of Phase 2)
 
 If the agent can run shell commands, test access once:
@@ -58,3 +60,21 @@ Many agents can only fetch URLs that appeared in search results (typed or constr
 - **Duplicate URLs:** wordpress.org returns the same plugin under `?p=…`, localized subdomains and others — dedupe by the canonical slug.
 - **Pain evidence spread:** collect reviews from at least 3 plugins before scoring pain strength, so one product's forum doesn't skew it.
 - **Rounded installs:** wordpress.org shows bands ("10,000+"). Use the band floor for share math and label results as estimates.
+
+## 5. Discovery sources (Phase 2)
+
+Cover every row. For wordpress.org, run `scripts/wporg_discover.py` with every keyword **and** tag, 2+ pages each, before any web search.
+
+| Source | How to search |
+|---|---|
+| WordPress.org | "site:wordpress.org/plugins [keyword]". If the pre-flight check passed, the Plugins API returns installs, ratings and dates for many plugins in one call (see `analytics-playbook.md` §1); otherwise use the fallback chain |
+| WooCommerce Marketplace | "site:woocommerce.com/products [keyword]" |
+| CodeCanyon | "codecanyon woocommerce [keyword]" to find items → open each item page (sales count, price); avoid search pages |
+| "Best plugin" lists | "best woocommerce [keyword] plugins [current year]" — open 2–3 articles |
+| Independent sellers | "[keyword] plugin pricing" (YITH, WebToffee, Barn2, StoreApps, Iconic, WPFactory, ThemeHigh, etc.) |
+| Communities | Reddit: search tools and agent browsers are usually refused — use rung 4 (the user's browser, `collectors.md` §5); r/woocommerce, r/WordPress, "which plugin for [job]", wordpress.org support forums, WooCommerce community, Facebook groups (rarely indexable — use if the user shares posts) — real threads only, not SEO articles about them |
+| GitHub (optional) | Open-source alternatives |
+| Theme built-ins & suites | Popular WooCommerce themes (e.g. WoodMart, Flatsome, Astra/Kadence add-ons) and multi-feature suites often include this feature — they are competitors too, and their users' complaints are evidence |
+| User's own products | If the user sells related plugins, search their support forums and reviews for requests about this idea |
+| Market events | Acquisitions, rebrands, price changes, plugins being merged into suites (e.g. "[plugin] acquired", "[plugin] discontinued") — these create switching windows |
+

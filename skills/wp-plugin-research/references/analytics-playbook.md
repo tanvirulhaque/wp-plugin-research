@@ -86,6 +86,8 @@ Use these instead of leaving "?" everywhere:
 | Top-3 share | top 3 installs ÷ total | >80% = concentrated market |
 | Concentration verdict | combine with leader's satisfaction | Concentrated + leader loved = hard. Concentrated + leader disliked/outdated = one big switching target (good) |
 | New-entrant success | plugins added in last 3 years that reached 1,000+ installs | 0 = newcomers struggle; several = market is open |
+| **Newcomer metric (standard)** | dedicated plugins added in the last **24 months**, and how many passed **100** and **1,000** installs (`wporg_discover.py` prints it) | "0 of 14 passed 100" is a strong "against" fact; report it in the Decision Summary |
+| Supply-side trend | new dedicated plugins per year for the keyword (from `added` dates) | Rising supply with flat demand = crowding |
 | Abandoned share | plugins with no update in 12+ months ÷ all plugins | High = users left behind, switching opportunity |
 | Paid share | paid or freemium plugins ÷ all plugins | High = users already used to paying |
 | Platform context | live WooCommerce store count and its year-over-year trend (Store Leads) | A shrinking platform means growth must come from winning share, not from new stores. Check the current figure; it changes quarterly |
@@ -105,7 +107,10 @@ Use these instead of leaving "?" everywhere:
 | Monthly search volume per keyword | keyword tool | Bigger = more people looking |
 | Keyword difficulty | keyword tool | High = hard to rank, plan more marketing |
 | 5-year trend | Google Trends | Rising / flat / falling |
-| Directory search rank | search wordpress.org or Plugin Pulse for each keyword | Who owns the top 5 results for each keyword — they get most free installs |
+| Directory search rank | the Plugins API's result order for each keyword (or Plugin Pulse) | Who owns the top 5 results for each keyword — they get most free installs |
+| Google Trends index | `collectors/google-trends.js` (rung 3) | An index (0–100), not volumes. No related queries + odd top regions = very low volume — say so. A one-quarter spike is not a trend |
+| Real phrasing | `scripts/autocomplete.py` (seed + a–z) | How people type the need ("… free", "… without plugin") — use for SEO and positioning |
+| Absolute volumes | User's Keyword Planner CSV → `parse_keyword_csv.py` (rung 5) | Only source of real monthly volumes; otherwise say "not available" |
 | Community question count | Reddit/Facebook/forum threads in last 12 months | Ongoing pain = steady demand |
 | Freelance job count | Upwork/Codeable searches | People paying for custom solutions = willingness to pay |
 | Feature request count | support forums + reviews | Which features users ask for most (feeds Phase 6) |
@@ -145,6 +150,7 @@ Score each signal 0–2 and add them up (max 10):
 Rules:
 - Base install growth on what similar newer plugins achieved (install velocity of recent entrants), not on the leader. If added dates are missing, estimate age from the first changelog version or earliest review (§2b).
 - Show the math in one line under the table.
+- **Paid-only sales don't follow freemium math** (e.g. a vendor with more paying customers than free installs). Add direct / marketplace customers per year as a separate input (the workbook's Forecast sheet has a column for it), based on marketplace sales and known customer counts.
 - Add a simple **break-even**: estimated build + first-year cost ÷ average revenue per customer = customers needed.
 
 **Pricing analytics**
@@ -157,6 +163,8 @@ Rules:
 ## 6. Sentiment & support metrics
 
 - **Complaint themes count:** tag each 1–3★ review and unresolved thread with a theme (missing feature, bug, UX, speed, support, price, compatibility). Count per theme and per plugin.
+- **From a review export** (wordpress.org or Marketplace collector): star split, reviews per year, share of low-star reviews per theme, and the share of 5★ reviews that praise support or a fixed conflict (a sign the product breaks but the vendor rescues it). Keep vendor replies — they can confirm code findings.
+- **Thread-title mining** (`wporg_threads.py`): rank pains by count across all deep plugins **before** ranking pains — a real run found "not showing" 207 vs "slow" 8, reversing an assumption.
 - **Recent vs lifetime rating:** average of reviews from the last 12 months vs overall. Falling recent rating = declining product.
 - **Support reply speed:** typical time to first reply in recent threads.
 - **Love themes:** what 4–5★ reviews praise — those are must-keep qualities.

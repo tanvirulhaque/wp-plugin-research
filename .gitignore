@@ -8,3 +8,5 @@ research.json
 *-research.xlsx
 .venv/
 tests/evals/results/
+node_modules/
+live-check-report.md

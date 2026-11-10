@@ -21,7 +21,7 @@ jobs:
       - name: Check SKILL.md size and pointers
         run: python tools/check_skill.py skills/wp-plugin-research
       - name: Check scripts compile
-        run: python -m py_compile skills/wp-plugin-research/scripts/*.py
+        run: python -m py_compile skills/wp-plugin-research/scripts/*.py skills/wp-plugin-research/scripts/parsers/*.py tools/*.py
       - name: Smoke test workbook builder
         run: python skills/wp-plugin-research/scripts/build_workbook.py tests/sample-research.json /tmp/sample.xlsx
       - name: Smoke test code scanner
@@ -31,5 +31,27 @@ jobs:
           python skills/wp-plugin-research/scripts/compare_code.py "Demo=/tmp/demo.json" > /dev/null
       - name: Smoke test add_row
         run: python skills/wp-plugin-research/scripts/add_row.py /tmp/r.json plugins name=Test url=https://example.com
+      - name: Smoke test parsers and merge
+        run: |
+          python skills/wp-plugin-research/scripts/parsers/parse_reddit_search.py tests/fixtures/reddit/search.html --core video --context product,store --out /tmp/rs.json
+          python -c "import json; d=json.load(open('/tmp/rs.json')); assert d['relevant']==1, d"
+          python skills/wp-plugin-research/scripts/parsers/parse_reddit_thread.py tests/fixtures/reddit/thread.html --out /tmp/rt.json
+          python skills/wp-plugin-research/scripts/merge_research.py --rows tests/fixtures/rows --overrides /nonexistent --out /tmp/merged.json
+          python -c "import json; d=json.load(open('/tmp/merged.json')); assert d['reviews'][0]['id'].startswith('R-'), d['reviews']"
+          python skills/wp-plugin-research/scripts/scan_signals.py --dirs tests/fixtures --out /tmp/sig
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check collector scripts (syntax + simulated pages)
+        run: |
+          for f in skills/wp-plugin-research/scripts/collectors/*.js skills/wp-plugin-research/scripts/userbrowser/*.js; do node --check "$f"; done
+          cd tests/js && npm install --silent
+          C=../../skills/wp-plugin-research/scripts/collectors
+          node woo-reviews.test.js $C/woo-reviews-return.js | grep '"pages":3'
+          node google-trends.test.js $C/google-trends.js | grep '"errors":\[\]'
+          node demo-probe.test.js $C/demo-probe.js | grep '"nocookie":true'
+          node save-page.test.js ../../skills/wp-plugin-research/scripts/userbrowser/save-page.js | grep '"downloaded":"old.reddit.com'
+      - name: Check shell scripts (syntax)
+        run: for f in skills/wp-plugin-research/scripts/userbrowser/*.sh; do bash -n "$f"; done
       - name: Build release files
         run: bash tools/package.sh

@@ -176,7 +176,12 @@
           2500,
           4000
         ],
-        "conversion": 0.01
+        "conversion": 0.01,
+        "direct": [
+          20,
+          40,
+          60
+        ]
       },
       "Realistic": {
         "installs": [
@@ -184,7 +189,12 @@
           5000,
           9000
         ],
-        "conversion": 0.02
+        "conversion": 0.02,
+        "direct": [
+          50,
+          120,
+          200
+        ]
       },
       "Optimistic": {
         "installs": [
@@ -192,7 +202,12 @@
           10000,
           18000
         ],
-        "conversion": 0.03
+        "conversion": 0.03,
+        "direct": [
+          50,
+          120,
+          200
+        ]
       }
     }
   },

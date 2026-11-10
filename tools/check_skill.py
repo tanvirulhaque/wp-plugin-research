@@ -33,7 +33,7 @@ ref_dir = os.path.join(root, "references")
 for f in os.listdir(ref_dir):
     texts[f"references/{f}"] = open(os.path.join(ref_dir, f), encoding="utf-8").read()
 
-pat = re.compile(r"(?<![/\w])((?:references|scripts|assets)/[A-Za-z0-9_\-]+\.(?:md|py|json))")
+pat = re.compile(r"(?<![/\w])((?:references|scripts|assets)/(?:[A-Za-z0-9_\-]+/)*[A-Za-z0-9_\-]+\.(?:md|py|json|js|sh))")
 for name, txt in texts.items():
     for m in set(pat.findall(txt)):
         if not os.path.exists(os.path.join(root, m)):

@@ -15,7 +15,7 @@ Data as of [date] · Confidence: High / Medium / Low
 - **Why yes:** 3 strongest reasons, each with one number
 - **Why not:** 3 biggest risks, each with one number
 
-## 2. Why — in 6 numbers
+## 2. Why — in 6–7 numbers
 | What | Number | Signal |
 |---|---|---|
 | Market (niche installs / stores) | | ✅/⚠️/❌ |
@@ -24,6 +24,7 @@ Data as of [date] · Confidence: High / Medium / Low
 | Competitor weakness (leader's bad reviews / support) | | |
 | Gap size (pains nobody solves) | | |
 | Build difficulty | | |
+| Newcomers (last 24 months: launched / passed 100 / passed 1,000 installs) | | |
 
 ## 3. What we found (summary by area)
 | Area | Finding (1 line) | Signal |

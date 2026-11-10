@@ -29,6 +29,8 @@ The chain: **Source → Review (R) → Pain (PN) → Gap (G) → Scorecard rank 
 
 - Start from `assets/research-template.json` (copy it to `research.json` in Phase 2). It already holds every key below, the scorecard criteria, forecast defaults and the verdict factors.
 - Append rows as you research: `python scripts/add_row.py research.json reviews plugin_id=P02 rating=1 theme="Filters" summary="..." url=...` (IDs are added automatically). Mark progress: `python scripts/add_row.py research.json --phase 4`.
+- **Rebuild pattern:** collectors write `raw/rows/*.json` (`{"reviews": [...]}` etc.), hand-made findings live in `overrides.json`, and `python scripts/merge_research.py` rebuilds `research.json` from the template every time — idempotent, so re-running a collector never wipes judgment calls. Reviews without an id get a stable hash id (`R-a1b2c3`), so inserting rows never shifts evidence IDs.
+- **No openpyxl?** `build_workbook.py` writes one CSV per sheet instead and prints the venv command to get the .xlsx.
 - Turn 1 builds the workbook with the research sheets; turn 2 fills `feature_set`, `pricing`, `forecast` and `verdict` and rebuilds it.
 
 ## JSON shape (all keys optional except plugins)
@@ -50,7 +52,7 @@ The chain: **Source → Review (R) → Pain (PN) → Gap (G) → Scorecard rank 
   "demand_proxy": [{"signal":"Plugins in niche","value":18,"points":2,"source":""}],
   "pricing": [{"plugin_id":"P01","plugin":"","tier_1":79,"tier_5":149,"tier_unlimited":299,"lifetime":"$499","trial":"14-day refund","url":""}],
   "feature_set": [{"id":"F01","feature":"","category":"","type":"Must-have / Better / New","priority":"MVP","tier":"Free","impact":"High","effort":"S","evidence":"PN02, G01","why":""}],
-  "forecast": {"avg_price":79,"renewal_rate":0.7,"first_year_cost":15000,"scenarios":{"Realistic":{"installs":[2000,5000,9000],"conversion":0.02}}},
+  "forecast": {"avg_price":79,"renewal_rate":0.7,"first_year_cost":15000,"scenarios":{"Realistic":{"installs":[2000,5000,9000],"conversion":0.02,"direct":[50,120,200]}}},
   "verdict": {"factors":[{"name":"Demand","score":4,"why":"120k niche installs"}],"confidence":"Medium"},
   "user_products": ["Names of plugins the user already sells (empty = 'Fit with our skills')"],
   "sources": [{"id":"S01","description":"","url":"","type":"Vendor / Marketplace / Forum / Tracker / Independent research","reliability":"High/Medium/Low"}]

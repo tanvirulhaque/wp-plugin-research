@@ -1,5 +1,5 @@
 {
-  "title": "[Plugin idea] — research workbook",
+  "title": "[Plugin idea] \u2014 research workbook",
   "prepared": "YYYY-MM-DD",
   "purpose": "Evidence behind the GO / NO-GO decision for [plugin idea]",
   "mode": "full",
@@ -9,7 +9,10 @@
   "default_confidence": "Medium",
   "plugins": [],
   "health": [],
-  "features": {"columns": [], "rows": []},
+  "features": {
+    "columns": [],
+    "rows": []
+  },
   "reviews": [],
   "pains": [],
   "gaps": [],
@@ -19,31 +22,112 @@
   "feature_set": [],
   "scorecard": {
     "criteria": [
-      {"name": "Evidence of user pain", "weight": 30},
-      {"name": "Differentiation", "weight": 25},
-      {"name": "Ease of build (5 = easy)", "weight": 15},
-      {"name": "Fit with our portfolio", "weight": 15},
-      {"name": "Revenue potential", "weight": 15}
+      {
+        "name": "Evidence of user pain",
+        "weight": 30
+      },
+      {
+        "name": "Differentiation",
+        "weight": 25
+      },
+      {
+        "name": "Ease of build (5 = easy)",
+        "weight": 15
+      },
+      {
+        "name": "Fit with our portfolio",
+        "weight": 15
+      },
+      {
+        "name": "Revenue potential",
+        "weight": 15
+      }
     ],
     "scores": {}
   },
   "forecast": {
-    "avg_price": 79, "renewal_rate": 0.70, "first_year_cost": 15000,
+    "avg_price": 79,
+    "renewal_rate": 0.7,
+    "first_year_cost": 15000,
     "scenarios": {
-      "Pessimistic": {"installs": [1000, 2500, 4000], "conversion": 0.01},
-      "Realistic":   {"installs": [2000, 5000, 9000], "conversion": 0.02},
-      "Optimistic":  {"installs": [4000, 10000, 18000], "conversion": 0.03}
+      "Pessimistic": {
+        "installs": [
+          1000,
+          2500,
+          4000
+        ],
+        "conversion": 0.01,
+        "direct": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Realistic": {
+        "installs": [
+          2000,
+          5000,
+          9000
+        ],
+        "conversion": 0.02,
+        "direct": [
+          0,
+          0,
+          0
+        ]
+      },
+      "Optimistic": {
+        "installs": [
+          4000,
+          10000,
+          18000
+        ],
+        "conversion": 0.03,
+        "direct": [
+          0,
+          0,
+          0
+        ]
+      }
     }
   },
   "verdict": {
     "factors": [
-      {"name": "Demand", "score": 0, "why": ""},
-      {"name": "Pain strength", "score": 0, "why": ""},
-      {"name": "Willingness to pay", "score": 0, "why": ""},
-      {"name": "Competitor weakness", "score": 0, "why": ""},
-      {"name": "Feature opportunity", "score": 0, "why": ""},
-      {"name": "Ease to build & support", "score": 0, "why": ""},
-      {"name": "Recurring revenue potential", "score": 0, "why": ""}
+      {
+        "name": "Demand",
+        "score": 0,
+        "why": ""
+      },
+      {
+        "name": "Pain strength",
+        "score": 0,
+        "why": ""
+      },
+      {
+        "name": "Willingness to pay",
+        "score": 0,
+        "why": ""
+      },
+      {
+        "name": "Competitor weakness",
+        "score": 0,
+        "why": ""
+      },
+      {
+        "name": "Feature opportunity",
+        "score": 0,
+        "why": ""
+      },
+      {
+        "name": "Ease to build & support",
+        "score": 0,
+        "why": ""
+      },
+      {
+        "name": "Recurring revenue potential",
+        "score": 0,
+        "why": ""
+      }
     ],
     "confidence": "Medium"
   },

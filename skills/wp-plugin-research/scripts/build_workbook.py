@@ -10,12 +10,19 @@ Every sheet is optional except "plugins". IDs (P01, R01, PN01, G01, B01, S01)
 link the sheets together so every claim can be traced back to its evidence.
 Then recalculate: python <xlsx-skill>/scripts/recalc.py output.xlsx
 """
-import json, sys
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
-from openpyxl.utils import get_column_letter
+import csv, json, os, sys
+try:
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.utils import get_column_letter
+    HAVE_XLSX = True
+except ImportError:  # no openpyxl: fall back to one CSV per sheet (see main)
+    HAVE_XLSX = False
+    Font = PatternFill = Alignment = lambda *a, **k: None
 
 FONT = "Arial"
+if not HAVE_XLSX:
+    def get_column_letter(n): return str(n)
 HEAD_FILL = PatternFill("solid", fgColor="1F3864")
 INPUT_FILL = PatternFill("solid", fgColor="FFFF00")
 HEAD_FONT = Font(name=FONT, bold=True, color="FFFFFF")
@@ -262,7 +269,8 @@ def build_forecast(wb, f):
         ws.cell(row=i, column=1, value=lab).font = BOLD
         _inp(ws.cell(row=i, column=2), val, fmt)
     heads = ["Scenario", "Year", "Free installs (end of year)", "Conversion", "New paying customers",
-             "Renewing customers", "New revenue", "Renewal revenue", "Total revenue"]
+             "Renewing customers", "New revenue", "Renewal revenue", "Total revenue",
+             "Direct / marketplace new customers"]
     hr = 8
     for i, h in enumerate(heads, 1):
         ws.cell(row=hr, column=i, value=h)
@@ -277,7 +285,8 @@ def build_forecast(wb, f):
             _inp(ws.cell(row=r, column=3), sc["installs"][y], "#,##0")
             _inp(ws.cell(row=r, column=4), sc["conversion"], "0.0%")
             prev = f"C{r-1}" if y else "0"
-            ws.cell(row=r, column=5, value=f"=ROUND(MAX(C{r}-{prev},0)*D{r},0)").number_format = "#,##0"
+            _inp(ws.cell(row=r, column=10), (sc.get("direct") or [0, 0, 0])[y], "#,##0")
+            ws.cell(row=r, column=5, value=f"=ROUND(MAX(C{r}-{prev},0)*D{r},0)+J{r}").number_format = "#,##0"
             ws.cell(row=r, column=6, value=f"=ROUND((E{r-1}+F{r-1})*$B$4,0)" if y else 0).number_format = "#,##0"
             ws.cell(row=r, column=7, value=f"=E{r}*$B$3").number_format = '"$"#,##0'
             ws.cell(row=r, column=8, value=f"=F{r}*$B$3").number_format = '"$"#,##0'
@@ -293,9 +302,9 @@ def build_forecast(wb, f):
         ws.cell(row=rr, column=1, value=f"{name}: 3-year total revenue")
         ws.cell(row=rr, column=2, value=f"=SUM(I{a}:I{b})").number_format = '"$"#,##0'
         rr += 1
-    ws.cell(row=rr + 1, column=1, value="Math: new customers = new installs x conversion; renewals = last year's paying customers x renewal rate. All figures are estimates.").font = BODY_FONT
+    ws.cell(row=rr + 1, column=1, value="Math: new customers = new free installs x conversion + direct/marketplace customers (paid-only sales don't follow freemium math); renewals = last year's paying customers x renewal rate. All figures are estimates.").font = BODY_FONT
     ws.column_dimensions["A"].width = 42
-    for c in "BCDEFGHI":
+    for c in "BCDEFGHIJ":
         ws.column_dimensions[c].width = 16
 
 
@@ -323,8 +332,35 @@ def build_verdict(wb, v):
     ws.column_dimensions["A"].width, ws.column_dimensions["B"].width, ws.column_dimensions["C"].width = 32, 14, 70
 
 
+def build_csv(data, out):
+    """Fallback when openpyxl is missing: one CSV per sheet in <out>_csv/."""
+    folder = os.path.splitext(out)[0] + "_csv"
+    os.makedirs(folder, exist_ok=True)
+    n = 0
+    for key, (name, cols) in TABLES.items():
+        rows = data.get(key) or []
+        if not rows:
+            continue
+        with open(os.path.join(folder, name + ".csv"), "w", newline="", encoding="utf-8") as fh:
+            w = csv.writer(fh); w.writerow([h for _, h in cols])
+            for r in rows: w.writerow([r.get(k, "") for k, _ in cols])
+        n += 1
+    f = data.get("features") or {}
+    if f.get("rows"):
+        with open(os.path.join(folder, "Feature_Matrix.csv"), "w", newline="", encoding="utf-8") as fh:
+            w = csv.writer(fh); w.writerow(["Plugin"] + f["columns"])
+            for r in f["rows"]: w.writerow([r["plugin"]] + r["values"])
+        n += 1
+    print(f"openpyxl not installed - wrote {n} CSV files to {folder}/. "
+          "For the .xlsx: python3 -m venv .venv && .venv/bin/pip install openpyxl, then re-run with .venv/bin/python.")
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print(__doc__); sys.exit(1)
     with open(sys.argv[1], encoding="utf-8") as fh:
-        build(json.load(fh), sys.argv[2])
+        data = json.load(fh)
+    if HAVE_XLSX:
+        build(data, sys.argv[2])
+    else:
+        build_csv(data, sys.argv[2])

@@ -17,6 +17,7 @@ This skill follows the open Agent Skills format. Some steps need tools that not 
 
 When reports are written with the Claude Docs connector:
 
+- **Docs or files?** Ask once at the start of the reporting turn; if the session is a local code project (Claude Code, Cowork), default to Markdown files in the project.
 - **When to create docs:** create them at the start of the reporting turn (turn 2 in `run-plan.md`), as that turn's first calls — not before research. This satisfies the connector's "skeleton first" rule without leaving empty docs for a whole turn.
 - **One doc, three tabs:** prefer one doc with tabs **Summary · Research · Technical** (one link, fewer setup calls). Use separate docs only if tabs aren't available.
 - **Group writes:** write 2–4 related sections per call, or create a tab with its full content in one call, to stay within the call budget.

@@ -1,0 +1,6 @@
+{
+  "name": "wp-plugin-research-collector-tests",
+  "private": true,
+  "description": "Simulated-page tests for the in-page collectors",
+  "dependencies": { "jsdom": "24.1.3" }
+}
